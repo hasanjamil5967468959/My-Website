@@ -1,0 +1,25 @@
+{
+  "tools": [
+    {
+      "id": "tool1",
+      "name": "Carrom Master Pro",
+      "categoryId": "cat1",
+      "type": "free",
+      "price": "FREE",
+      "image": "https://i.postimg.cc/L6CfLD88/IMG-20261114-112554-796.jpg",
+      "desc": "Test description for Carrom Master Pro.",
+      "views": 0,
+      "downloads": [
+        { "tag": "Server 1", "url": "https://mediafire.com/link1" }
+      ]
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat1",
+      "name": "Carrom Hack",
+      "image": "https://cdn-icons-png.flaticon.com/512/716/716784.png"
+    }
+  ],
+  "notice": "Welcome to HASAN CR Store! All tools are updated."
+}
