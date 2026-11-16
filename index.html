@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#050505">
+<title>HASAN CR - Premium Tools Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;1000&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="manifest" id="manifest-link">
+<link rel="apple-touch-icon" href="https://i.postimg.cc/L6CfLD88/IMG-20261114-112554-796.jpg">
+
+<style>
+/* ===== Variables ===== */
+:root {
+  --bg: #030305; --panel: #121212; --line: #2a1a1a; --red: #ff2a2a; --red2: #b80e1b;
+  --white: #ffffff; --muted: #9e8c8c; --gold: #ffbd66; --green: #2e7d32;
+  --card-bg: linear-gradient(145deg, #151111, #080808); --input-bg: #0a0808; --glow: 0 0 25px rgba(255, 42, 42, 0.3);
+}
+body.light-mode {
+  --bg: #f4f6f8; --panel: #ffffff; --line: #e5e7eb; --red: #e11d48; --red2: #be123c;
+  --white: #111827; --muted: #6b7280; --gold: #d97706; --card-bg: linear-gradient(145deg, #ffffff, #f9fafb);
+  --input-bg: #f3f4f6; --glow: 0 0 25px rgba(225, 29, 72, 0.2);
+}
+*{box-sizing:border-box; margin:0; padding:0; font-family: 'Inter', sans-serif;}
+html{scroll-behavior:smooth}
+
+body { background-color: var(--bg); color: var(--white); overflow-x: hidden; transition: background 0.3s, color 0.3s; min-height: 100vh; }
+#canvas-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: -1; pointer-events: none; opacity: 0.6; }
+body.light-mode #canvas-bg { opacity: 0.2; }
+
+header { position: sticky; top: 0; z-index: 50; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(15px); border-bottom: 1px solid var(--line); padding: 15px 6%; display: flex; justify-content: space-between; align-items: center; }
+.logo { font-weight: 900; letter-spacing: 1px; font-size: 22px; color: var(--white); cursor: pointer; display:flex; align-items:center; gap:8px;}
+.logo b { color: var(--red); text-shadow: var(--glow); }
+nav { display: flex; gap: 20px; align-items: center; }
+nav a { color: var(--muted); text-decoration: none; font-size: 14px; transition: .2s; cursor: pointer; font-weight: 600; display:flex; align-items:center; gap:6px;}
+nav a:hover, nav a.active { color: var(--red); }
+.header-controls { display: flex; align-items: center; gap: 12px; }
+.theme-toggle { background: var(--panel); border: 1px solid var(--line); color: var(--white); font-size: 16px; cursor: pointer; padding: 8px 12px; border-radius: 8px; transition: .2s; }
+.theme-toggle:hover { border-color: var(--red); box-shadow: var(--glow); }
+.hamburger { display: none; background: none; border: 0; color: var(--white); font-size: 24px; cursor: pointer; }
+
+#pwa-install-btn { display: none; background: linear-gradient(135deg, #2e7d32, #1b5e20); border: none; color: white; padding: 8px 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 13px; box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4); transition: .3s; }
+#pwa-install-btn:hover { transform: translateY(-2px); }
+
+@media(max-width:850px){
+  nav { position: fixed; top: 65px; right: 0; left: 0; background: var(--panel); flex-direction: column; align-items: stretch; gap: 0; padding: 10px 6%; border-bottom: 1px solid var(--line); transform: translateY(-150%); transition: .3s; z-index: 40; box-shadow: 0 10px 20px rgba(0,0,0,0.5);}
+  nav.open { transform: translateY(0); }
+  nav a { padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+  .hamburger { display: block; }
+}
+
+.notice-bar { background: linear-gradient(90deg, var(--red2), var(--red)); color: white; text-align: center; padding: 8px; font-size: 13px; font-weight: 600; display: none; position:relative; z-index:10;}
+
+.hero { max-width: 1200px; margin: auto; padding: 60px 6% 30px; text-align: center; position:relative; z-index:1;}
+.hero .eyebrow { color: var(--red); letter-spacing: 3px; font-size: 12px; font-weight: 800; text-transform: uppercase; }
+.hero h1 { font-size: clamp(36px, 6vw, 64px); line-height: 1.1; margin: 15px 0; font-weight: 900; letter-spacing: -1px; }
+.hero h1 span { color: var(--red); text-shadow: var(--glow); }
+.hero p { max-width: 600px; margin: auto; color: var(--muted); line-height: 1.7; font-size: 15px; }
+
+.wrap { max-width: 1200px; margin: auto; padding: 30px 6% 60px; position:relative; z-index:1;}
+.section-head { display: flex; justify-content: space-between; align-items: end; gap: 15px; flex-wrap: wrap; margin-bottom: 25px; }
+.section-head h2 { font-size: 26px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.section-head p { color: var(--muted); margin-top: 5px; font-size: 14px; }
+
+.slider-container { display: flex; overflow-x: auto; gap: 20px; padding-bottom: 20px; scroll-snap-type: x mandatory; scrollbar-width: none; -ms-overflow-style: none; }
+.slider-container::-webkit-scrollbar { display: none; }
+.featured-card { min-width: 85%; max-width: 400px; scroll-snap-align: center; position: relative; border-radius: 20px; overflow: hidden; background: var(--panel); border: 1px solid var(--line); display: flex; flex-direction: column; transition: .3s; }
+@media(min-width: 768px) { .featured-card { min-width: 45%; } }
+.featured-card:hover { transform: translateY(-5px); border-color: var(--red); box-shadow: var(--glow); }
+.featured-img { height: 200px; width: 100%; object-fit: cover; background: radial-gradient(circle, var(--line), var(--panel)); }
+.featured-body { padding: 20px; flex:1; display:flex; flex-direction:column;}
+.featured-body h3 { font-size: 20px; margin-bottom: 8px; }
+.featured-body p { color: var(--muted); font-size: 14px; margin-bottom: 15px; flex:1; }
+.featured-badge { position:absolute; top:15px; right:15px; background:var(--red); color:#fff; padding:5px 12px; border-radius:20px; font-size:11px; font-weight:800; box-shadow:0 4px 10px rgba(0,0,0,0.5); z-index:2;}
+
+.category-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; margin-bottom: 40px; }
+.cat-card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; transition: .3s; position:relative; overflow:hidden; }
+.cat-card:hover { border-color: var(--red); transform: translateY(-5px); box-shadow: var(--glow); background: var(--card-bg); }
+.cat-img { width: 60px; height: 60px; border-radius: 16px; object-fit: cover; margin: 0 auto 12px; border: 2px solid var(--line); background: var(--bg); }
+.cat-name { font-weight: 700; font-size: 14px; color: var(--white); }
+
+.search-row { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; align-items: center; }
+.search-box { flex: 1; min-width: 200px; padding: 14px 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--white); font-size: 14px; outline: none; transition: .2s; }
+.search-box:focus { border-color: var(--red); box-shadow: var(--glow); }
+select { padding: 14px 20px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--white); font-size: 14px; outline: none; cursor: pointer; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
+.card { background: var(--card-bg); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; transition: .3s; display: flex; flex-direction: column; position: relative; }
+.card:hover { transform: translateY(-6px); border-color: var(--red); box-shadow: 0 15px 30px rgba(0,0,0,0.5), var(--glow); }
+.preview { height: 160px; background: radial-gradient(circle, color-mix(in srgb, var(--red) 20%, var(--panel)), var(--panel)); display: grid; place-items: center; position: relative; overflow: hidden; }
+.preview-img { width: 100%; height: 100%; object-fit: cover; position: absolute; top: 0; left: 0; z-index: 1; opacity: 0.9; transition: .3s; }
+.card:hover .preview-img { transform: scale(1.08); opacity: 1;}
+.preview-icon { font-size: 50px; z-index: 1; color: var(--red); }
+.tag { position: absolute; top: 12px; left: 12px; background: var(--panel); color: var(--red); border: 1px solid var(--line); padding: 5px 10px; border-radius: 20px; font-size: 10px; font-weight: 800; z-index: 2; text-transform: uppercase; backdrop-filter: blur(5px);}
+.fav-btn { position: absolute; top: 12px; right: 12px; z-index: 3; background: var(--panel); border: 1px solid var(--line); width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: grid; place-items: center; transition: .2s; color: var(--muted); font-size: 14px; backdrop-filter: blur(5px);}
+.fav-btn.active { color: var(--red); border-color: var(--red); background: rgba(255,42,42,0.1); }
+
+.card-body { padding: 18px; display: flex; flex-direction: column; flex: 1; }
+.card-body h3 { font-size: 16px; margin-bottom: 8px; line-height: 1.4; }
+.card-body p { color: var(--muted); font-size: 13px; line-height: 1.5; flex: 1; margin-bottom: 15px; }
+.meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; color: var(--muted); font-size: 12px; font-weight: 600;}
+.price { color: var(--gold); background: rgba(255, 189, 102, 0.1); padding: 4px 8px; border-radius: 6px;}
+.card-actions { display: flex; gap: 8px; }
+.card-actions button { flex: 1; font-size: 13px; padding: 10px; }
+
+.btn { display: inline-flex; justify-content: center; align-items: center; border: 1px solid var(--line); padding: 12px 20px; border-radius: 10px; color: var(--white); text-decoration: none; font-weight: 700; background: var(--panel); cursor: pointer; transition: .2s; font-size: 14px; gap: 8px;}
+.btn:hover { border-color: var(--red); box-shadow: var(--glow); transform: translateY(-2px); }
+.btn.primary { background: linear-gradient(135deg, var(--red), var(--red2)); border: 0; color: #fff; }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 100; align-items: center; justify-content: center; padding: 15px; backdrop-filter: blur(10px); }
+.modal.show { display: flex; animation: fade .2s; }
+@keyframes fade { from{opacity:0}to{opacity:1} }
+.modal-box { max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.5); color: var(--white); }
+.modal-box h3 { margin-bottom: 15px; font-size: 20px; display: flex; justify-content: space-between; align-items: center; }
+.close { background: none; border: 0; color: var(--muted); font-size: 24px; cursor: pointer; transition: .2s; }
+.close:hover { color: var(--red); transform: rotate(90deg); }
+input, textarea, select { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid var(--line); background: var(--input-bg); color: var(--white); font: inherit; outline: none; }
+input:focus, textarea:focus, select:focus { border-color: var(--red); }
+label { font-size: 13px; color: var(--muted); font-weight: 600; display: block; margin-bottom: 6px; }
+.modal-actions { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; }
+.link-btn { display: flex; justify-content: space-between; align-items: center; text-decoration: none; background: var(--bg); border: 1px solid var(--line); padding: 14px 18px; border-radius: 10px; color: var(--white); font-size: 14px; font-weight: 600; transition: .2s; }
+.link-btn:hover { border-color: var(--red); background: var(--panel); }
+.link-btn.done { border-color: var(--green); background: rgba(46,125,50,0.1); color: #4caf50; }
+
+.admin-tabs { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+.admin-tab { background: none; border: none; color: var(--muted); padding: 10px 15px; cursor: pointer; font-weight: 700; font-size: 14px; border-radius: 8px; transition: .2s; white-space: nowrap; }
+.admin-tab.active { background: var(--red); color: #fff; box-shadow: var(--glow); }
+.dash-card { background: var(--bg); border: 1px solid var(--line); padding: 15px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+.dash-card-info h4 { font-size: 15px; margin-bottom: 4px; }
+.dash-card-info p { font-size: 12px; color: var(--muted); }
+.dash-actions { display: flex; gap: 5px; }
+
+#toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--panel); border: 1px solid var(--red); color: var(--white); padding: 12px 24px; border-radius: 30px; font-size: 14px; font-weight: 600; z-index: 200; transition: .3s; box-shadow: 0 10px 30px rgba(0,0,0,0.5), var(--glow); max-width: 90%; text-align: center;}
+#toast.show { transform: translateX(-50%) translateY(0); }
+
+#pageLoader { position: fixed; inset: 0; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; transition: opacity 0.4s; }
+.spinner { width: 40px; height: 40px; border: 4px solid var(--line); border-top: 4px solid var(--red); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 15px; }
+@keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
+footer { text-align: center; padding: 30px; color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); margin-top: 40px; position:relative; z-index:1;}
+</style>
+</head>
+<body>
+
+<canvas id="canvas-bg"></canvas>
+
+<div id="pageLoader">
+  <div class="spinner"></div>
+  <div class="logo" style="font-size:20px;">CARROM <b>X</b></div>
+</div>
+
+<div id="noticeBar" class="notice-bar"></div>
+
+<header>
+  <div class="logo" onclick="window.scrollTo(0,0)"><i class="fas fa-gamepad" style="color:var(--red)"></i> CARROM <b>X</b></div>
+  <nav id="nav">
+    <a onclick="scrollToId('home')" class="active"><i class="fas fa-home"></i> Home</a>
+    <a onclick="scrollToId('categories')"><i class="fas fa-th-large"></i> Categories</a>
+    <a onclick="scrollToId('tools')"><i class="fas fa-tools"></i> All Tools</a>
+  </nav>
+  <div class="header-controls">
+    <button id="pwa-install-btn" onclick="installPWA()"><i class="fas fa-download"></i> Install App</button>
+    <button class="theme-toggle" id="themeBtn" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+    <button class="hamburger" id="hamburger"><i class="fas fa-bars"></i></button>
+  </div>
+</header>
+
+<section class="hero" id="home">
+  <div class="eyebrow">Premium Hacking Tools</div>
+  <h1>Play Smart. <span>Win Every Game.</span></h1>
+  <p>Download the most advanced App & Games hacks, mod menus, and aimbots. Safe, undetected, and updated daily.</p>
+</section>
+
+<div class="wrap" id="featured-section">
+  <div class="section-head">
+    <div>
+      <h2><i class="fas fa-star" style="color:var(--gold)"></i> Featured Apps</h2>
+      <p>Swipe to explore top tools.</p>
+    </div>
+  </div>
+  <div class="slider-container" id="featuredSlider"></div>
+</div>
+
+<div class="wrap" id="categories">
+  <div class="section-head">
+    <div>
+      <h2><i class="fas fa-layer-group" style="color:var(--red)"></i> Browse Categories</h2>
+      <p>Find the exact tool you need.</p>
+    </div>
+  </div>
+  <div class="category-grid" id="categoryGrid"></div>
+</div>
+
+<main class="wrap" id="tools">
+  <div class="section-head">
+    <div>
+      <h2><i class="fas fa-fire" style="color:var(--red)"></i> All Tools</h2>
+      <p id="activeCategoryText">Showing all available tools.</p>
+    </div>
+  </div>
+  
+  <div class="search-row">
+    <input type="text" id="searchInput" class="search-box" placeholder="🔍 Search tools by name..." oninput="debouncedSearch()">
+    <select id="sortSelect" onchange="renderTools()">
+      <option value="newest">🆕 Newest First</option>
+      <option value="popular">🔥 Most Viewed</option>
+      <option value="name">🔤 Name (A-Z)</option>
+    </select>
+    <button class="btn" onclick="resetCategory()" id="resetCatBtn" style="display:none;">✖ Clear Filter</button>
+  </div>
+
+  <div class="grid" id="toolGrid"></div>
+</main>
+
+<footer>
+  <b style="color:var(--red); letter-spacing:1px;">CREATE BY HASAN CR</b><br>
+  <span>HASAN CR • Premium Tools Store</span><br>
+  <button onclick="openDashboard()" style="background:none; border:none; color:var(--muted); font-size:11px; cursor:pointer; margin-top:10px; text-decoration:underline;">• Admin Access •</button>
+</footer>
+
+<div class="modal" id="modal"><div class="modal-box"><div id="modalContent"></div></div></div>
+<div id="toast"></div>
+
+<script>
+// =====================================================================
+// ⚠️ এখানে তোর GitHub Token এবং ইউজারনেম/রিপো নেম বসাবি ⚠️
+// =====================================================================
+const GITHUB_TOKEN = "তোর_টোকেন_এখানে_বসা"; // যেমন: "ghp_xxxxxxxxxxxxxxxxxx"
+const GITHUB_USER = "hasanjamil5967468959"; // তোর GitHub ইউজারনেম
+const GITHUB_REPO = "carrom-x"; // তোর রিপোজিটরির নাম
+const FILE_PATH = "data.json"; // যেখানে ডেটা সেভ হবে
+
+// ডেটা ভ্যারিয়েবল
+let dbData = { tools: [], categories: [], notice: "" };
+let activeCategory = 'all';
+let searchTimeout = null;
+let pendingTool = null;
+let linksClicked = { tg1: false, tg2: false, yt: false };
+
+// GitHub API থেকে ডেটা লোড করা
+async function loadDataFromGitHub() {
+  try {
+    const res = await fetch(`https://raw.githubusercontent.com/${GITHUB_USER}/${GITHUB_REPO}/main/${FILE_PATH}?t=${Date.now()}`);
+    if(res.ok) {
+      dbData = await res.json();
+    }
+  } catch(e) { console.error("Error loading data:", e); }
+  
+  if(dbData.notice) {
+    document.getElementById('noticeBar').innerHTML = `<i class="fas fa-bullhorn"></i> ${escapeHtml(dbData.notice)}`;
+    document.getElementById('noticeBar').style.display = 'block';
+  }
+  
+  renderCategories();
+  renderFeatured();
+  renderTools();
+  
+  setTimeout(() => { document.getElementById('pageLoader').style.opacity = '0'; setTimeout(() => document.getElementById('pageLoader').style.display = 'none', 400); }, 500);
+}
+
+// GitHub API-তে ডেটা সেভ করা
+async function saveDataToGitHub() {
+  try {
+    // প্রথমে ফাইলের SHA (ভার্সন) বের করতে হবে
+    const getRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
+      headers: { "Authorization": `token ${GITHUB_TOKEN}` }
+    });
+    let sha = null;
+    if(getRes.ok) {
+      const fileData = await getRes.json();
+      sha = fileData.sha;
+    }
+
+    // এবার নতুন ডেটা পুশ করতে হবে
+    const content = btoa(unescape(encodeURIComponent(JSON.stringify(dbData, null, 2)))); // UTF-8 Base64
+    const putRes = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/${FILE_PATH}`, {
+      method: 'PUT',
+      headers: {
+        "Authorization": `token ${GITHUB_TOKEN}`,
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        message: "Update data via Admin Panel",
+        content: content,
+        sha: sha
+      })
+    });
+
+    if(putRes.ok) {
+      toast("✅ সফলভাবে GitHub এ সেভ হয়েছে!");
+    } else {
+      toast("❌ GitHub এ সেভ হয়নি! টোকেন চেক কর।");
+    }
+  } catch(e) { toast("❌ Error saving: " + e.message); }
+}
+
+// --- PWA & THEME ---
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => { e.preventDefault(); deferredPrompt = e; document.getElementById('pwa-install-btn').style.display = 'block'; });
+function installPWA() { if (deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => { deferredPrompt = null; document.getElementById('pwa-install-btn').style.display = 'none'; }); } }
+const manifestData = { name: "HASAN CR - Premium Tools", short_name: "HASAN CR", start_url: ".", display: "standalone", background_color: "#030305", theme_color: "#ff2a2a", description: "Download premium hacking tools.", icons: [{ src: "https://i.postimg.cc/L6CfLD88/IMG-20261114-112554-796.jpg", sizes: "192x192", type: "image/jpeg" }] };
+document.getElementById('manifest-link').setAttribute('href', URL.createObjectURL(new Blob([JSON.stringify(manifestData)], {type: 'application/json'})));
+if ('serviceWorker' in navigator) { navigator.serviceWorker.register(URL.createObjectURL(new Blob([`self.addEventListener('install', (e) => { self.skipWaiting(); });`], {type: 'application/javascript'}))).catch(e=>console.log(e)); }
+
+if(localStorage.getItem('theme') === 'light') { document.body.classList.add('light-mode'); document.getElementById('themeBtn').innerHTML = '<i class="fas fa-sun"></i>'; }
+function toggleTheme() { document.body.classList.toggle('light-mode'); let isLight = document.body.classList.contains('light-mode'); localStorage.setItem('theme', isLight ? 'light' : 'dark'); document.getElementById('themeBtn').innerHTML = isLight ? '<i class="fas fa-sun"></i>' : '<i class="fas fa-moon"></i>'; }
+
+// --- UTILS ---
+function toast(msg){ let t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(()=>t.classList.remove('show'), 3000); }
+function escapeHtml(s){ return String(s??'').replace(/[&<>"']/g, m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function showModal(html){ document.getElementById('modalContent').innerHTML = html; document.getElementById('modal').classList.add('show'); }
+function closeModal(){ document.getElementById('modal').classList.remove('show'); }
+function debouncedSearch(){ clearTimeout(searchTimeout); searchTimeout = setTimeout(() => renderTools(), 300); }
+function scrollToId(id){ document.getElementById(id).scrollIntoView({behavior:'smooth'}); }
+
+document.getElementById('modal').addEventListener('click', (e) => { if(e.target.id === 'modal') closeModal(); });
+document.getElementById('hamburger').addEventListener('click',()=>{document.getElementById('nav').classList.toggle('open');});
+document.querySelectorAll('#nav a').forEach(a=>a.addEventListener('click',()=>{document.getElementById('nav').classList.remove('open');}));
+
+// --- FAVORITES ---
+function getFavs() { try { return JSON.parse(localStorage.getItem('carrom_favs') || '[]'); } catch(e) { return []; } }
+function toggleFav(id) { let favs = getFavs(); if(favs.includes(id)) { favs = favs.filter(x => x !== id); toast('Removed from Favorites'); } else { favs.push(id); toast('❤️ Added to Favorites'); } localStorage.setItem('carrom_favs', JSON.stringify(favs)); renderTools(); renderFeatured(); }
+
+// --- RENDER ---
+function renderFeatured() {
+  const slider = document.getElementById('featuredSlider');
+  if(dbData.tools.length === 0) { slider.innerHTML = '<p style="color:var(--muted);">No apps available yet.</p>'; return; }
+  let featured = [...dbData.tools].sort(() => 0.5 - Math.random()).slice(0, 5);
+  slider.innerHTML = featured.map(t => {
+    let isPremium = t.type === 'premium';
+    let imgUrl = t.image || 'https://cdn-icons-png.flaticon.com/512/716/716784.png';
+    return `
+      <div class="featured-card">
+        <span class="featured-badge">${isPremium?'💎 PREMIUM':'🔥 TRENDING'}</span>
+        <img src="${escapeHtml(imgUrl)}" class="featured-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716784.png'">
+        <div class="featured-body">
+          <h3>${escapeHtml(t.name)}</h3>
+          <p>${escapeHtml(t.desc || 'No description.')}</p>
+          <div class="meta" style="margin-bottom:15px;">
+            <span><i class="fas fa-eye"></i> ${t.views || 0}</span>
+            <span class="price">${isPremium?escapeHtml(t.price||'PREMIUM'):'FREE'}</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn" onclick="previewTool('${t.id}')">Info</button>
+            <button class="btn primary" onclick="startDownload('${t.id}')">Download</button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function renderCategories() {
+  const grid = document.getElementById('categoryGrid');
+  grid.innerHTML = dbData.categories.map(c => `
+    <div class="cat-card" onclick="selectCategory('${c.id}', '${escapeHtml(c.name)}')">
+      <img src="${c.image || 'https://cdn-icons-png.flaticon.com/512/716/716784.png'}" class="cat-img" onerror="this.src='https://cdn-icons-png.flaticon.com/512/716/716784.png'">
+      <div class="cat-name">${escapeHtml(c.name)}</div>
+    </div>
+  `).join('');
+}
+
+function selectCategory(id, name) { activeCategory = id; document.getElementById('activeCategoryText').innerHTML = `Showing tools in <b>${escapeHtml(name)}</b>`; document.getElementById('resetCatBtn').style.display = 'inline-flex'; renderTools(); scrollToId('tools'); }
+function resetCategory() { activeCategory = 'all'; document.getElementById('activeCategoryText').innerText = 'Showing all available tools.'; document.getElementById('resetCatBtn').style.display = 'none'; renderTools(); }
+
+function renderTools(){
+  let searchQuery = (document.getElementById('searchInput').value || '').toLowerCase();
+  let sortBy = document.getElementById('sortSelect').value;
+  let grid = document.getElementById('toolGrid');
+  let favs = getFavs();
+  
+  let filtered = dbData.tools.filter(t => {
+    let matchCat = activeCategory === 'all' || t.categoryId === activeCategory;
+    let matchSearch = !searchQuery || (t.name && t.name.toLowerCase().includes(searchQuery));
+    return matchCat && matchSearch;
+  });
+  
+  switch(sortBy){
+    case 'popular': filtered.sort((a,b)=>(b.views||0)-(a.views||0)); break;
+    case 'name': filtered.sort((a,b)=>a.name.localeCompare(b.name)); break;
+    default: break; 
+  }
+
+  if(filtered.length === 0) { grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;"><i class="fas fa-search" style="font-size:40px;color:var(--line);margin-bottom:10px;"></i><p style="color:var(--muted);">No tools found in this category.</p></div>'; return; }
+  
+  grid.innerHTML = filtered.map(t => {
+    let isFav = favs.includes(t.id);
+    let isPremium = t.type === 'premium';
+    let imgHtml = t.image ? `<img src="${escapeHtml(t.image)}" class="preview-img" loading="lazy" onerror="this.style.display='none'">` : `<i class="fas fa-cube preview-icon"></i>`;
+    return `
+      <article class="card">
+        <div class="preview">
+          <span class="tag">${isPremium?'💎 PREMIUM':'FREE'}</span>
+          <button class="fav-btn ${isFav?'active':''}" onclick="toggleFav('${t.id}')"><i class="fas fa-heart"></i></button>
+          ${imgHtml}
+        </div>
+        <div class="card-body">
+          <h3>${escapeHtml(t.name)}</h3>
+          <p>${escapeHtml(t.desc || 'No description provided.')}</p>
+          <div class="meta">
+            <span><i class="fas fa-eye"></i> ${t.views || 0}</span>
+            <span><i class="fas fa-download"></i> ${t.downloads_count || 0}</span>
+            <span class="price">${isPremium?escapeHtml(t.price||'PREMIUM'):'FREE'}</span>
+          </div>
+          <div class="card-actions">
+            <button class="btn" onclick="previewTool('${t.id}')">Info</button>
+            <button class="btn primary" onclick="startDownload('${t.id}')">Download</button>
+          </div>
+        </div>
+      </article>`;
+  }).join('');
+}
+
+function previewTool(id){
+  let t = dbData.tools.find(x => x.id === id); if(!t) return;
+  let imgHtml = t.image ? `<img src="${escapeHtml(t.image)}" style="width:100%;border-radius:10px;margin-bottom:15px;max-height:250px;object-fit:cover;">` : '';
+  showModal(`<h3>${escapeHtml(t.name)} <button class="close" onclick="closeModal()">×</button></h3>${imgHtml}<p style="color:var(--muted); line-height:1.6; margin-bottom:15px;">${escapeHtml(t.desc || '')}</p><button class="btn primary" style="width:100%" onclick="closeModal();startDownload('${t.id}')"><i class="fas fa-download"></i> Download Now</button>`);
+}
+
+// --- DOWNLOAD SYSTEM ---
+function startDownload(id){
+  let t = dbData.tools.find(x => x.id === id); if(!t) return;
+  pendingTool = t;
+  if(t.type === 'premium') {
+    showModal(`<h3>Premium Tool 💎 <button class="close" onclick="closeModal()">×</button></h3><p style="margin-bottom:15px; color:var(--muted);">This is a Premium Resource. Contact the admin on Telegram to purchase this tool.</p><a href="https://t.me/rudrohasan5967468959" target="_blank" class="btn primary" style="width:100%; text-decoration:none;"><i class="fab fa-telegram-plane"></i> Contact Admin</a>`);
+    return;
+  }
+  linksClicked = { tg1:false, tg2:false, yt:false };
+  showModal(`<h3>Unlock Download <button class="close" onclick="closeModal()">×</button></h3><p style="margin-bottom:15px; color:var(--muted);">Click all 3 links below to unlock your download.</p><div class="modal-actions"><a href="https://t.me/carrompoolhack00" target="_blank" class="link-btn" onclick="markDone('tg1')"><span><i class="fab fa-telegram text-blue"></i> Telegram Channel</span><span id="status-tg1">Click Here</span></a><a href="https://t.me/carrompoolhackgroup" target="_blank" class="link-btn" onclick="markDone('tg2')"><span><i class="fab fa-telegram text-blue"></i> Telegram Group</span><span id="status-tg2">Click Here</span></a><a href="https://youtube.com/@carrom.poolhack?si=MIbgrb0zpiS0qR52" target="_blank" class="link-btn" onclick="markDone('yt')"><span><i class="fab fa-youtube text-red"></i> YouTube Channel</span><span id="status-yt">Click Here</span></a></div><div style="margin-top:20px"><button class="btn primary" id="unlockBtn" style="width:100%" disabled onclick="finishUnlock()">Locked <i class="fas fa-lock"></i></button></div>`);
+}
+
+function markDone(linkId){
+  linksClicked[linkId] = true; let statusEl = document.getElementById('status-'+linkId);
+  if(statusEl){ statusEl.innerText = 'Done ✅'; statusEl.parentElement.classList.add('done'); }
+  if(linksClicked.tg1 && linksClicked.tg2 && linksClicked.yt){ let btn = document.getElementById('unlockBtn'); if(btn){ btn.disabled = false; btn.innerHTML = 'Unlock Download ✅'; btn.style.background = 'linear-gradient(135deg, #2e7d32, #1b5e20)'; } }
+}
+
+function finishUnlock(){
+  let t = pendingTool; if(!t){ return; }
+  t.downloads_count = (t.downloads_count || 0) + 1;
+  let dlList = t.downloads || [];
+  let linksHtml = dlList.map((d, i) => `<a href="${escapeHtml(d.url)}" target="_blank" rel="noopener" class="link-btn" style="margin-bottom:8px; border-color:var(--green);"><span>📦 ${escapeHtml(d.tag)}</span><span style="color:var(--red);font-weight:bold;">Download ⬇</span></a>`).join('');
+  showModal(`<h3>Available Downloads 📥 <button class="close" onclick="closeModal()">×</button></h3><p style="margin-bottom:15px; color:var(--muted);">Click on the file you want to download.</p><div>${linksHtml}</div><button class="btn" style="width:100%;margin-top:12px;" onclick="closeModal()">Close</button>`);
+  toast('Download unlocked successfully!');
+}
+
+// --- ADMIN DASHBOARD (GitHub) ---
+function openDashboard() {
+  let pass = prompt("Enter Admin Master Password:");
+  if (pass === "5967468959") {
+    showModal(`<h3>👑 Admin Panel <button class="close" onclick="closeModal()">×</button></h3><div class="admin-tabs"><button class="admin-tab active" onclick="switchAdminTab('tools', this)"><i class="fas fa-tools"></i> Tools</button><button class="admin-tab" onclick="switchAdminTab('cats', this)"><i class="fas fa-layer-group"></i> Categories</button><button class="admin-tab" onclick="switchAdminTab('notice', this)"><i class="fas fa-bullhorn"></i> Notice</button></div><div id="adminContent"></div>`);
+    switchAdminTab('tools');
+  } else if(pass !== null) { toast('Access Denied: Wrong Password!'); }
+}
+
+function switchAdminTab(tab, btn) {
+  document.querySelectorAll('.admin-tab').forEach(x=>x.classList.remove('active')); if(btn) btn.classList.add('active');
+  const content = document.getElementById('adminContent');
+  if(tab === 'tools') renderAdminTools(content);
+  if(tab === 'cats') renderAdminCats(content);
+  if(tab === 'notice') renderAdminNotice(content);
+}
+
+function renderAdminTools(container) {
+  let html = `<button class="btn primary" style="width:100%;margin-bottom:15px;" onclick="renderToolForm()">+ Add New Tool</button>`;
+  dbData.tools.forEach(t => {
+    html += `<div class="dash-card"><div class="dash-card-info"><h4>${escapeHtml(t.name)}</h4><p>Views: ${t.views||0} | Downloads: ${t.downloads_count||0}</p></div><div class="dash-actions"><button class="btn btn-sm" onclick="renderToolForm('${t.id}')"><i class="fas fa-edit"></i></button><button class="btn btn-sm" style="color:red;border-color:red;" onclick="deleteTool('${t.id}')"><i class="fas fa-trash"></i></button></div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function renderToolForm(editId) {
+  let t = editId ? dbData.tools.find(x => x.id === editId) : null;
+  let catOptions = `<option value="">-- Select Category --</option>` + dbData.categories.map(c => `<option value="${c.id}" ${t && t.categoryId === c.id ? 'selected' : ''}>${escapeHtml(c.name)}</option>`).join('');
+  let html = `<h4 style="margin-bottom:15px;">${editId ? 'Edit Tool' : 'Add New Tool'}</h4>
+    <label>Tool Name</label><input id="tName" value="${t ? escapeHtml(t.name) : ''}">
+    <label>Category</label><select id="tCat">${catOptions}</select>
+    <label>Type</label><select id="tType"><option value="free" ${t&&t.type==='free'?'selected':''}>Free</option><option value="premium" ${t&&t.type==='premium'?'selected':''}>Premium</option></select>
+    <label>Price</label><input id="tPrice" value="${t ? escapeHtml(t.price||'') : ''}">
+    <label>Image URL</label><input id="tImage" value="${t ? escapeHtml(t.image||'') : ''}">
+    <label>Description</label><textarea id="tDesc" rows="3">${t ? escapeHtml(t.desc||'') : ''}</textarea>
+    <label>Download Links</label><div id="dlContainer"></div>
+    <button class="btn btn-sm" style="margin-bottom:15px;" onclick="addDlField()">+ Add Server</button>
+    <button class="btn primary" style="width:100%;" onclick="saveTool('${editId||''}')">Save Tool</button>
+    <button class="btn" style="width:100%;margin-top:8px;" onclick="switchAdminTab('tools')">Back to List</button>`;
+  document.getElementById('adminContent').innerHTML = html;
+  if(t && t.downloads) t.downloads.forEach(d => addDlField(d.tag, d.url)); else addDlField();
+}
+
+function addDlField(tag='', url='') {
+  let div = document.createElement('div'); div.style.cssText = "display:flex;gap:5px;margin-bottom:5px;";
+  div.innerHTML = `<input class="dl-tag" placeholder="Server 1" value="${escapeHtml(tag)}" style="flex:1;"><input class="dl-url" placeholder="https://..." value="${escapeHtml(url)}" style="flex:2;"><button class="btn" style="padding:0 10px;color:red;border-color:red;" onclick="this.parentElement.remove()">×</button>`;
+  document.getElementById('dlContainer').appendChild(div);
+}
+
+async function saveTool(id) {
+  const name = document.getElementById('tName').value.trim(); if(!name) return toast('Name required');
+  let downloads = [];
+  document.querySelectorAll('#dlContainer > div').forEach(row => { let tag = row.querySelector('.dl-tag').value.trim(); let url = row.querySelector('.dl-url').value.trim(); if(url) downloads.push({ tag, url }); });
+  
+  const payload = { id: id || 'tool' + Date.now(), name, categoryId: document.getElementById('tCat').value, type: document.getElementById('tType').value, price: document.getElementById('tPrice').value.trim(), image: document.getElementById('tImage').value.trim(), desc: document.getElementById('tDesc').value.trim(), downloads, views: 0, downloads_count: 0 };
+  
+  if(id) {
+    let index = dbData.tools.findIndex(x => x.id === id);
+    payload.views = dbData.tools[index].views || 0;
+    payload.downloads_count = dbData.tools[index].downloads_count || 0;
+    dbData.tools[index] = payload;
+  } else {
+    dbData.tools.push(payload);
+  }
+  
+  await saveDataToGitHub();
+  renderAdminTools(document.getElementById('adminContent'));
+}
+
+async function deleteTool(id) {
+  if(!confirm("Delete this tool?")) return;
+  dbData.tools = dbData.tools.filter(x => x.id !== id);
+  await saveDataToGitHub();
+  renderAdminTools(document.getElementById('adminContent'));
+}
+
+function renderAdminCats(container) {
+  let html = `<h4 style="margin-bottom:15px;">Categories</h4><div style="background:var(--bg); padding:15px; border-radius:10px; margin-bottom:15px; border:1px solid var(--line);"><label>Category Name</label><input id="newCatName"><label>Image URL</label><input id="newCatImg"><button class="btn primary" style="width:100%" onclick="addCategory()">+ Add Category</button></div>`;
+  dbData.categories.forEach(c => { html += `<div class="dash-card"><div class="dash-card-info" style="display:flex; align-items:center; gap:10px;"><img src="${c.image||''}" style="width:30px; height:30px; border-radius:6px; object-fit:cover;"><h4>${escapeHtml(c.name)}</h4></div><div class="dash-actions"><button class="btn btn-sm" style="color:red;border-color:red;" onclick="deleteCategory('${c.id}')"><i class="fas fa-trash"></i></button></div></div>`; });
+  container.innerHTML = html;
+}
+
+async function addCategory() {
+  let name = document.getElementById('newCatName').value.trim(); let image = document.getElementById('newCatImg').value.trim(); if(!name) return toast('Name required');
+  dbData.categories.push({ id: "cat" + Date.now(), name, image });
+  await saveDataToGitHub();
+  renderAdminCats(document.getElementById('adminContent'));
+}
+
+async function deleteCategory(id) {
+  if(!confirm("Delete this category?")) return;
+  dbData.categories = dbData.categories.filter(x => x.id !== id);
+  await saveDataToGitHub();
+  renderAdminCats(document.getElementById('adminContent'));
+}
+
+function renderAdminNotice(container) {
+  container.innerHTML = `<h4 style="margin-bottom:15px;">Update Notice Bar</h4><textarea id="noticeText" rows="4">${escapeHtml(dbData.notice || '')}</textarea><button class="btn primary" style="width:100%" onclick="saveNotice()">Save Notice</button>`;
+}
+
+async function saveNotice() {
+  dbData.notice = document.getElementById('noticeText').value.trim();
+  await saveDataToGitHub();
+  if(dbData.notice) { document.getElementById('noticeBar').innerHTML = `<i class="fas fa-bullhorn"></i> ${escapeHtml(dbData.notice)}`; document.getElementById('noticeBar').style.display = 'block'; } else { document.getElementById('noticeBar').style.display = 'none'; }
+  toast('Notice updated');
+}
+
+// ===== LIVE BACKGROUND CANVAS =====
+const canvas = document.getElementById('canvas-bg'); const ctx = canvas.getContext('2d'); let particles = []; let width, height;
+function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+window.addEventListener('resize', resize); resize();
+for (let i = 0; i < 60; i++) { particles.push({ x: Math.random() * width, y: Math.random() * height, vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5, r: Math.random() * 2 + 1 }); }
+function draw() {
+  ctx.clearRect(0, 0, width, height); let isLight = document.body.classList.contains('light-mode'); let color = isLight ? '225, 29, 72' : '255, 42, 42'; 
+  particles.forEach(p => { p.x += p.vx; p.y += p.vy; if (p.x < 0 || p.x > width) p.vx *= -1; if (p.y < 0 || p.y > height) p.vy *= -1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fillStyle = `rgba(${color}, 0.5)`; ctx.fill(); });
+  for (let i = 0; i < particles.length; i++) { for (let j = i + 1; j < particles.length; j++) { let dx = particles[i].x - particles[j].x; let dy = particles[i].y - particles[j].y; let dist = Math.sqrt(dx * dx + dy * dy); if (dist < 120) { ctx.beginPath(); ctx.moveTo(particles[i].x, particles[i].y); ctx.lineTo(particles[j].x, particles[j].y); ctx.strokeStyle = `rgba(${color}, ${0.15 - dist/800})`; ctx.stroke(); } } }
+  requestAnimationFrame(draw);
+}
+
+// ===== INIT =====
+loadDataFromGitHub();
+draw();
+</script>
+</body>
+</html>
